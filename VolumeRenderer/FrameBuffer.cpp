@@ -1,5 +1,6 @@
 #include "FrameBuffer.h"
-#include <GL/glew.h>
+#include "glew.h"
+#include "glut.h"
 
 
 

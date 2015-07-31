@@ -1,5 +1,5 @@
 #include "TextureMgr.h"
-#include <GL/glew.h>
+#include "glew.h"
 
 TextureMgr::TextureMgr(void)
 {

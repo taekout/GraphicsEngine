@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fstream>
 #include <sstream>
+#include "glew.h"
 #include "Defs.h"
 
 

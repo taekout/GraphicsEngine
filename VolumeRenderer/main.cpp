@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glew.h>
+#include "glew.h"
 #include "glut.h"
 #include <string>
 #include <functional>

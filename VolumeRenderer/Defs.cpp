@@ -1,7 +1,7 @@
 #include "Defs.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glew.h>
+#include "glew.h"
 #include "glut.h"
 #include <vector>
 #include <map>

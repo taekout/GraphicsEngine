@@ -3,7 +3,7 @@
 #include <vector>
 #include <sys/stat.h>
 #include <stdlib.h>
-#include <GL/glew.h>
+#include "glew.h"
 #include "glut.h"
 
 
