@@ -245,6 +245,8 @@ void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
 
 	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderBasic);
 	UpdateRenderMat(gDC);
@@ -253,13 +255,20 @@ void renderScene(void) {
 
 	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
 	UpdateRenderMat(gDC);
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBindTexture(GL_TEXTURE_2D, gDC.fTextureID);
 	
+	glDepthMask(GL_FALSE);
+
+	// should sort here.
 	for(size_t i = 0 ; i < gDC.fMeshes.size() ; i++) {
 		glBindVertexArray(gDC.fVAO_ID[i + 1]);
 		glDrawElements(GL_TRIANGLES, gDC.fMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *) 0);
 		glBindVertexArray(0);
 	}
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
