@@ -156,6 +156,7 @@
     <ClCompile Include="MeshAccess.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="CubeBackground.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
     <ClCompile Include="tiny_obj_loader.cc" />
     <ClCompile Include="UserInput.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="MeshAccess.h" />
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="CubeBackground.h" />
     <ClInclude Include="TextureMgr.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="UserInput.h" />
@@ -176,6 +178,8 @@
   <ItemGroup>
     <None Include="GLSL\litfog.frag" />
     <None Include="GLSL\phong.vert" />
+    <None Include="GLSL\skybox.frag" />
+    <None Include="GLSL\skybox.vert" />
     <None Include="GLSL\texture.frag" />
     <None Include="GLSL\texture.vert" />
     <None Include="GLSL\white.frag" />

@@ -54,7 +54,8 @@ public:
 	enum EShaderKind {
 		eShaderNothing = -1,
 		eShaderBasic = 0,
-		eShaderTexture,
+		eShaderTexture = 1,
+		eShaderSkybox = 2,
 		eMaxShader
 	};
 
@@ -93,6 +94,7 @@ public:
 	void UpdateUniform4fv(char *varName, float data1, float data2, float data3, float data4);
 	void UpdateUniform1f(char *varName, float data);
 	void UpdateUniform3fv(char *varName, float data1, float data2, float data3);
+	void UpdateUniform1i(char *varName, int data);
 	void UpdateUniformMat4(char *varName, float * data);
 
 private:

@@ -1,9 +1,13 @@
 #pragma once
+#include <memory>
 #include "Defs.h"
 #include "Shader.h"
 #include "UserInput.h"
 #include "MeshAccess.h"
 #include "Light.h"
+
+class IBackground;
+
 
 class IGraphicsEngine
 {
@@ -52,11 +56,19 @@ public:
 		fLights->AddLight(pos, glm::vec3(0) - pos, intensity);
 	}
 
+	void AddBackground(std::shared_ptr<IBackground> bg) {
+		fBackground = bg;
+		if (fBackground == nullptr) {
+			throw "Background null is set.";
+		}
+	}
+
 	Shader *fShader;
 	UserInput * fInput ;
 	Camera *fCamera ;
 	IMeshAccess *fMeshAccess;
 	Light * fLights;
+	std::shared_ptr<IBackground> fBackground;
 
 	std::vector<glm::vec3> fColors;
 	std::vector<Mesh> fMeshes;

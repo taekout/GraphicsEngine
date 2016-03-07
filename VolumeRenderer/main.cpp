@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory>
 
 #include "glew.h"
 #include <glfw3.h>
@@ -17,13 +18,13 @@
 #include "Camera.h"
 #include "MeshAccess.h"
 #include "Light.h"
+#include "CubeBackground.h"
 
 #include "DrawContext.h"
 
 #define MODELLOADING 1
 
 GraphicsEngine gDC;
-
 
 void UpdateRenderMat(GraphicsEngine & ge)
 {
@@ -40,59 +41,59 @@ void UpdateRenderMat(GraphicsEngine & ge)
 	ge.fShader->UpdateUniformMat4("NormalMat", &normalMat[0][0]);
 	ge.fShader->UpdateUniform3fv("EyePos", eyePos[0], eyePos[1], eyePos[2]);
 
-	if(ge.fLights) {
+	if (ge.fLights) {
 		std::tuple<glm::vec3, glm::vec3, glm::vec3> & lightData = ge.fLights->GetLight(0);
 
 		auto pos = std::get<Light::kLightPos>(lightData);
 
 		ge.fShader->UpdateUniform3fv("LightPos", pos[0], pos[1], pos[2]);
 	}
-	
+
 }
 
 
 
 void Keyboard(unsigned char key, int x, int y)
 {
-	if(gDC.fInput)
+	if (gDC.fInput)
 		gDC.fInput->Keyboard(key, x, y);
 	//glutPostRedisplay();
 }
 
 void KeyboardUp(unsigned char key, int x, int y)
 {
-	if(gDC.fInput)
+	if (gDC.fInput)
 		gDC.fInput->KeyboardUp(key, x, y);
 	//glutPostRedisplay();
 }
 
 void Keyboard(int key, int x, int y)
 {
-	if(gDC.fInput)
+	if (gDC.fInput)
 		gDC.fInput->Keyboard(key, x, y);
 	//glutPostRedisplay();
 }
 
 void Mouse(int button, int state, int x, int y)
 {
-	if(gDC.fInput)
+	if (gDC.fInput)
 		gDC.fInput->Mouse(button, state, x, y);
 	glutPostRedisplay();
 }
 
 void MouseMotion(int x, int y)
 {
-	if(gDC.fInput)
+	if (gDC.fInput)
 		gDC.fInput->MouseMotion(x, y);
 	//glutPostRedisplay();
 }
 
 
-void EndGL() 
+void EndGL()
 {
 	//glBindVertexArray(0);
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
+
 }
 
 static const GLfloat g_cube[] = {
@@ -195,17 +196,17 @@ static const GLfloat gPlaneNormals[] = {
 
 void LoadCube(std::vector<glm::vec3> & verts)
 {
-	for(size_t i = 0 ; i < sizeof(g_cube) / sizeof(float) ; i+=3) {
+	for (size_t i = 0; i < sizeof(g_cube) / sizeof(float); i += 3) {
 		// is the index correct?
-		verts.push_back(glm::vec3(g_cube[i], g_cube[i+1], g_cube[i+2]));
+		verts.push_back(glm::vec3(g_cube[i], g_cube[i + 1], g_cube[i + 2]));
 	}
 
-	for(size_t i = 0 ; i < sizeof(g_cube_colors) / sizeof(float) ; i+=3) {
+	for (size_t i = 0; i < sizeof(g_cube_colors) / sizeof(float); i += 3) {
 		// is the index correct?
-		gDC.fColors.push_back(glm::vec3(g_cube_colors[i], g_cube_colors[i+1], g_cube_colors[i+2]));
+		gDC.fColors.push_back(glm::vec3(g_cube_colors[i], g_cube_colors[i + 1], g_cube_colors[i + 2]));
 	}
 
-	for(size_t i = 0 ; i < sizeof(g_cube) / sizeof(float) / 3 ; i++) {
+	for (size_t i = 0; i < sizeof(g_cube) / sizeof(float) / 3; i++) {
 		//gInds.push_back(i);
 	}
 }
@@ -213,37 +214,155 @@ void LoadCube(std::vector<glm::vec3> & verts)
 
 void ActivateMoveIfKeyPressed()
 {
-	if(gDC.fInput->IsLeftPressed()) {
+	if (gDC.fInput->IsLeftPressed()) {
 		gDC.fInput->Move(EDirection::left);
 	}
 
-	if(gDC.fInput->IsRightPressed()) {
+	if (gDC.fInput->IsRightPressed()) {
 		gDC.fInput->Move(EDirection::right);
 	}
 
-	if(gDC.fInput->IsUpPressed()) {
+	if (gDC.fInput->IsUpPressed()) {
 		gDC.fInput->Move(EDirection::up);
 	}
 
-	if(gDC.fInput->IsDownPressed()) {
+	if (gDC.fInput->IsDownPressed()) {
 		gDC.fInput->Move(EDirection::down);
 	}
 
-	if(gDC.fInput->IsBackPressed()) {
+	if (gDC.fInput->IsBackPressed()) {
 		gDC.fInput->Move(EDirection::backward);
 	}
 
-	if(gDC.fInput->IsForewardPressed()) {
+	if (gDC.fInput->IsForewardPressed()) {
 		gDC.fInput->Move(EDirection::forward);
 	}
 }
+
+
+void RenderBackground()
+{
+	const unsigned int kOutColorID = 0;
+	const unsigned int kInPosID = 0;
+	const unsigned int kInUV = 2;
+
+	glClear(GL_COLOR_BUFFER_BIT);  // the color buffer will contain the output from the fragment shader
+
+	float vertices[] = { //interleaved vertex(3) , uv(2)
+		-1.0f,  1.0f, -1.0f, 0, 1,
+		-1.0f, -1.0f, -1.0f, 0, 0,
+		1.0f, -1.0f, -1.0f,  1, 0,
+		1.0f, -1.0f, -1.0f,  1, 0,
+		1.0f,  1.0f, -1.0f,  1, 1,
+		-1.0f,  1.0f, -1.0f, 0, 1,
+
+		-1.0f, -1.0f,  1.0f, 0, 1,
+		-1.0f, -1.0f, -1.0f, 0, 0,
+		-1.0f,  1.0f, -1.0f, 1, 0,
+		-1.0f,  1.0f, -1.0f, 1, 0,
+		-1.0f,  1.0f,  1.0f, 1, 1,
+		-1.0f, -1.0f,  1.0f, 0, 1,
+
+		1.0f, -1.0f, -1.0f, 0, 0,
+		1.0f, -1.0f,  1.0f, 0, 1,
+		1.0f,  1.0f,  1.0f, 1, 1,
+		1.0f,  1.0f,  1.0f, 1, 1,
+		1.0f,  1.0f, -1.0f, 1, 0,
+		1.0f, -1.0f, -1.0f, 0, 0,
+
+		-1.0f, -1.0f,  1.0f, 0, 0,
+		-1.0f,  1.0f,  1.0f, 0, 1,
+		1.0f,  1.0f,  1.0f,  1, 1,
+		1.0f,  1.0f,  1.0f,  1, 1,
+		1.0f, -1.0f,  1.0f,  1, 0,
+		-1.0f, -1.0f,  1.0f, 0, 0,
+
+		-1.0f,  1.0f, -1.0f, 0, 0,
+		1.0f,  1.0f, -1.0f,  1, 0,
+		1.0f,  1.0f,  1.0f,  1, 1,
+		1.0f,  1.0f,  1.0f,  1, 1,
+		-1.0f,  1.0f,  1.0f, 0, 1,
+		-1.0f,  1.0f, -1.0f, 0, 0,
+
+		-1.0f, -1.0f, -1.0f, 0, 0,
+		-1.0f, -1.0f,  1.0f, 0, 1,
+		1.0f, -1.0f, -1.0f,  1, 0,
+		1.0f, -1.0f, -1.0f,  1, 0,
+		-1.0f, -1.0f,  1.0f, 0, 1,
+		1.0f, -1.0f,  1.0f,  1, 1
+	};
+
+
+	// allocate a block of graphics memory (Vertex Buffer Object)
+	unsigned int vertVBO;
+	glGenBuffers(1, &vertVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, vertVBO);
+	int numBytes = sizeof(vertices);
+	glBufferData(GL_ARRAY_BUFFER, numBytes, vertices, GL_STATIC_DRAW);  // set the size of the memory block, also upload some data
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	printOpenGLError();
+
+	// make a structure (Vertex Array) that sets up the rendering state
+	GLuint va = 0;
+	glGenVertexArrays(1, &va);
+	glBindVertexArray(va);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertVBO);
+	glEnableVertexAttribArray(kInPosID);  // this is an identifier to the vertex shader variable 'inPosition'
+	glVertexAttribPointer(kInPosID, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, 0);  // specify that the data for 'inPosition' comes from offset 0 in 'vbo' and that it is 4 tightly packed floats
+
+	glEnableVertexAttribArray(kInUV);  // this is an identifier to the vertex shader variable 'inPosition'
+	glVertexAttribPointer(kInUV, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void *)(sizeof(float) * 3));  // specify that the data for 'inPosition' comes from offset 0 in 'vbo' and that it is 4 tightly packed floats
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+
+	// Now we're ready to use the shader program
+	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderSkybox);
+	glBindVertexArray(va);
+
+	printOpenGLError();
+
+	// set view / proj matrix.
+	glm::mat4 projMat = glm::perspective(40.0f, 1.0f, 0.0f, 10.0f);
+	glm::mat4 viewMat = glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(-1, 1, 1), glm::vec3(0, 1, 0));
+	gDC.fShader->UpdateUniformMat4("Proj", &projMat[0][0]);
+	gDC.fShader->UpdateUniformMat4("View", &viewMat[0][0]);
+
+	printOpenGLError();
+
+	for (int i = 0; i < gDC.fBackground->GetNumTex(); i++) {
+		int textureUnit = 0;
+		glActiveTexture(GL_TEXTURE0 + textureUnit);  // this line and the one below associate kImage with GL_TEXTURE0
+		printOpenGLError();
+		glBindTexture(GL_TEXTURE_2D, gDC.fBackground->GetTex(i));
+		printOpenGLError();
+		// this sets the fragment shader variable 'kImage' to the value 0 - this means use the texture in GL_TEXTURE0
+		gDC.fShader->UpdateUniform1i("kImage", textureUnit);
+		printOpenGLError();
+
+		glDrawArrays(GL_TRIANGLES, i * 6, 6);  // this draws a 'triangle strip' (search google images) that ends up drawing a textured rectangle
+		printOpenGLError();
+	}
+
+	printOpenGLError();
+
+	// Done.  Free resources.
+	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderNothing);
+	glDeleteBuffers(1, &vertVBO);
+	glDeleteVertexArrays(1, &va);
+
+	printOpenGLError();
+}
+
 
 
 void renderScene(void) {
 	printOpenGLError();
 
 	ActivateMoveIfKeyPressed();
-	
+
 	// Init GL states.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -252,20 +371,17 @@ void renderScene(void) {
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderBasic);
-	UpdateRenderMat(gDC);
-	glBindVertexArray(gDC.fVAO_ID[0]);
-	glDrawElements(GL_TRIANGLES, sizeof(gPlaneInds), GL_UNSIGNED_SHORT, (void *) 0);
+	RenderBackground();
 
 	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
 	UpdateRenderMat(gDC);
-	
+
 	glBindTexture(GL_TEXTURE_2D, gDC.fTextureID);
-	
+
 	// should sort here.
-	for(size_t i = 0 ; i < gDC.fMeshes.size() ; i++) {
+	for (size_t i = 0; i < gDC.fMeshes.size(); i++) {
 		glBindVertexArray(gDC.fVAO_ID[i + 1]);
-		glDrawElements(GL_TRIANGLES, gDC.fMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *) 0);
+		glDrawElements(GL_TRIANGLES, gDC.fMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *)0);
 		glBindVertexArray(0);
 	}
 
@@ -281,8 +397,8 @@ void renderScene(void) {
 void InitGL()
 {
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowPosition(100,100);
-	glutInitWindowSize(320,320);
+	glutInitWindowPosition(100, 100);
+	glutInitWindowSize(320, 320);
 	glutCreateWindow("Volume Raycasting 3D");
 
 	glutDisplayFunc(renderScene);
@@ -305,45 +421,15 @@ void InitGL()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	//glEnable(GL_TEXTURE_3D);
-	//glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
 
 }
 
-
-int main(int argc, char **argv) {
-	try {
-
-	glutInit(&argc, argv);
-	InitGL();
-	if (glewIsSupported("GL_VERSION_3_1"))
-		printf("Ready for OpenGL 3.1.\n");
-	else {
-		printf("OpenGL 3.1 not supported\n");
-		exit(1);
-	}
-
-	gDC.AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
-
-#if MODELLOADING
-	gDC.AllocateMeshAccess("truck_color.bmp", "./models/L200-OBJ/", "L200-OBJ.obj");
-#else
-	std::vector<glm::vec3> verts;
-	LoadCube(verts);
-#endif
-
-	gDC.AllocateShader();
-	printOpenGLError();
-
-	if(gDC.fMeshes.size() > 99) { printf("too many meshes\n"); exit(-4); }
-
-	glGenVertexArrays(gDC.fMeshes.size() + 1, gDC.fVAO_ID);
-
-	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderBasic);
-	printOpenGLError();
-
+void LoadPlane()
+{
 	glBindVertexArray(gDC.fVAO_ID[0]);
 
 	GLuint vertexBuffer;
@@ -370,78 +456,133 @@ int main(int argc, char **argv) {
 	glBindBuffer(GL_ARRAY_BUFFER, gDC.fNormalBuffer);
 	glVertexAttribPointer(gDC.fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 	glBindVertexArray(0);
+}
 
-	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
-	printOpenGLError();
 
-	for(size_t i = 0 ; i < gDC.fMeshes.size() ; i++) {
+void LoadSkybox()
+{
+	std::array<unsigned int, 6> skyboxIDs{0};
+	skyboxIDs[0] = loadBMP_custom("./Skybox/ashcanyon_bk.bmp");
+	skyboxIDs[1] = loadBMP_custom("./Skybox/ashcanyon_dn.bmp");
+	skyboxIDs[2] = loadBMP_custom("./Skybox/ashcanyon_ft.bmp");
+	skyboxIDs[3] = loadBMP_custom("./Skybox/ashcanyon_lf.bmp");
+	skyboxIDs[4] = loadBMP_custom("./Skybox/ashcanyon_rt.bmp");
+	skyboxIDs[5] = loadBMP_custom("./Skybox/ashcanyon_up.bmp");
 
-		Mesh & mesh = gDC.fMeshes.at(i);
-		Material & mat = mesh.fMat;
+	std::shared_ptr<IBackground> bg = std::make_shared<CubeBackground>();
+	bg->SetCubeBackgroundTex(skyboxIDs);
+	gDC.AddBackground(bg);
+}
 
-		// materials.
 
-		glBindVertexArray(gDC.fVAO_ID[i + 1]);
+int main(int argc, char **argv) {
+	try {
 
-		GLuint vertexBuffer;
-		glGenBuffers(1, &vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, mesh.fVertices.size() * sizeof(glm::vec3), &mesh.fVertices[0], GL_STATIC_DRAW);
+		glutInit(&argc, argv);
+		InitGL();
+		if (glewIsSupported("GL_VERSION_3_1"))
+			printf("Ready for OpenGL 3.1.\n");
+		else {
+			printf("OpenGL 3.1 not supported\n");
+			exit(1);
+		}
 
-		glGenBuffers(1, &gDC.fIndexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gDC.fIndexBuffer);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.fIndices.size() * sizeof(unsigned short), &mesh.fIndices[0], GL_STATIC_DRAW);
+		gDC.AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
 
-		glGenBuffers(1, &gDC.fNormalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, gDC.fNormalBuffer);
-		glBufferData(GL_ARRAY_BUFFER, mesh.fNormals.size() * sizeof(glm::vec3), &mesh.fNormals[0], GL_STATIC_DRAW);
+#if MODELLOADING
+		gDC.AllocateMeshAccess("truck_color.bmp", "./models/L200-OBJ/", "L200-OBJ.obj");
+#else
+		std::vector<glm::vec3> verts;
+		LoadCube(verts);
+#endif
 
-		glGenBuffers(1, &gDC.fUVBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, gDC.fUVBuffer);
-		glBufferData(GL_ARRAY_BUFFER, mesh.fUVs.size() * sizeof(glm::vec2), &mesh.fUVs[0], GL_STATIC_DRAW);
+		gDC.AllocateShader();
+		printOpenGLError();
 
-		/*GLuint colorBuffer;
-		glGenBuffers(1, &colorBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-		glBufferData(GL_ARRAY_BUFFER, gColors.size() * sizeof(glm::vec3), &gColors[0], GL_STATIC_DRAW);
-		*/
+		if (gDC.fMeshes.size() > 99) { printf("too many meshes\n"); exit(-4); }
 
-		gDC.fVertexPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inPositions");
-		gDC.fNormalPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inNormals");
-		gDC.fUVPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inUV");
-		//gColorPos = glGetAttribLocation(gDC.gShader->GetProgram(), "inColors");
+		glGenVertexArrays(gDC.fMeshes.size() + 1, gDC.fVAO_ID);
 
-		glEnableVertexAttribArray(gDC.fVertexPos);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glVertexAttribPointer(gDC.fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		gDC.fShader->UseProgram(Shader::EShaderKind::eShaderBasic);
+		printOpenGLError();
 
-		glEnableVertexAttribArray(gDC.fNormalPos);
-		glBindBuffer(GL_ARRAY_BUFFER, gDC.fNormalBuffer);
-		glVertexAttribPointer(gDC.fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		// Load Plane
+		LoadPlane();
 
-		glEnableVertexAttribArray(gDC.fUVPos);
-		glBindBuffer(GL_ARRAY_BUFFER, gDC.fUVBuffer);
-		glVertexAttribPointer(gDC.fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		// Load Skybox
+		LoadSkybox();
+
+		gDC.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
+		printOpenGLError();
+
+		for (size_t i = 0; i < gDC.fMeshes.size(); i++) {
+
+			Mesh & mesh = gDC.fMeshes.at(i);
+			Material & mat = mesh.fMat;
+
+			// materials.
+
+			glBindVertexArray(gDC.fVAO_ID[i + 1]);
+
+			GLuint vertexBuffer;
+			glGenBuffers(1, &vertexBuffer);
+			glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+			glBufferData(GL_ARRAY_BUFFER, mesh.fVertices.size() * sizeof(glm::vec3), &mesh.fVertices[0], GL_STATIC_DRAW);
+
+			glGenBuffers(1, &gDC.fIndexBuffer);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gDC.fIndexBuffer);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.fIndices.size() * sizeof(unsigned short), &mesh.fIndices[0], GL_STATIC_DRAW);
+
+			glGenBuffers(1, &gDC.fNormalBuffer);
+			glBindBuffer(GL_ARRAY_BUFFER, gDC.fNormalBuffer);
+			glBufferData(GL_ARRAY_BUFFER, mesh.fNormals.size() * sizeof(glm::vec3), &mesh.fNormals[0], GL_STATIC_DRAW);
+
+			glGenBuffers(1, &gDC.fUVBuffer);
+			glBindBuffer(GL_ARRAY_BUFFER, gDC.fUVBuffer);
+			glBufferData(GL_ARRAY_BUFFER, mesh.fUVs.size() * sizeof(glm::vec2), &mesh.fUVs[0], GL_STATIC_DRAW);
+
+			/*GLuint colorBuffer;
+			glGenBuffers(1, &colorBuffer);
+			glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+			glBufferData(GL_ARRAY_BUFFER, gColors.size() * sizeof(glm::vec3), &gColors[0], GL_STATIC_DRAW);
+			*/
+
+			gDC.fVertexPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inPositions");
+			gDC.fNormalPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inNormals");
+			gDC.fUVPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inUV");
+			//gColorPos = glGetAttribLocation(gDC.gShader->GetProgram(), "inColors");
+
+			glEnableVertexAttribArray(gDC.fVertexPos);
+			glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+			glVertexAttribPointer(gDC.fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+			glEnableVertexAttribArray(gDC.fNormalPos);
+			glBindBuffer(GL_ARRAY_BUFFER, gDC.fNormalBuffer);
+			glVertexAttribPointer(gDC.fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+			glEnableVertexAttribArray(gDC.fUVPos);
+			glBindBuffer(GL_ARRAY_BUFFER, gDC.fUVBuffer);
+			glVertexAttribPointer(gDC.fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+		//glEnableVertexAttribArray(gColorPos);
+		//glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+		//glVertexAttribPointer(gColorPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+
+		printOpenGLError();
+
+
+		UpdateRenderMat(gDC);
+
+		glutMainLoop();
+
+		EndGL();
 
 	}
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	//glEnableVertexAttribArray(gColorPos);
-	//glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	//glVertexAttribPointer(gColorPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-
-
-	printOpenGLError();
-
-	
-	UpdateRenderMat(gDC);
-
-	glutMainLoop();
-
-	EndGL();
-
-	}
-	catch(char * e) {
+	catch (char * e) {
 		std::cout << e << std::endl;
 	}
 	return 0;

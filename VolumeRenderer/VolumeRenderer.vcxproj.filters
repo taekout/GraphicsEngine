@@ -54,6 +54,9 @@
     <ClCompile Include="RenderEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CubeBackground.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -89,6 +92,9 @@
     <ClInclude Include="RenderEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CubeBackground.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GLSL\litfog.frag">
@@ -107,6 +113,12 @@
       <Filter>GLSL</Filter>
     </None>
     <None Include="GLSL\white.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="GLSL\skybox.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="GLSL\skybox.vert">
       <Filter>GLSL</Filter>
     </None>
   </ItemGroup>

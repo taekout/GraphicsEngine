@@ -28,8 +28,6 @@ Shader::Shader(void)
 
 	LinkShaders();
 	UseProgram(eShaderNothing);
-	//EShaderKind::eShaderTexture
-	
 	
 	setShaders(Shader::EShaderKind::eShaderTexture, "./GLSL/texture.vert", "./GLSL/texture.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
@@ -39,6 +37,14 @@ Shader::Shader(void)
 	
 	printOpenGLError();
 	
+	LinkShaders();
+	UseProgram(eShaderNothing);
+
+	setShaders(Shader::EShaderKind::eShaderSkybox, "./GLSL/skybox.vert", "./GLSL/skybox.frag");
+	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
+	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(GetProgram(), kInUV, "inUV");
+
 	LinkShaders();
 	UseProgram(eShaderNothing);
 }
@@ -338,6 +344,18 @@ void Shader::UpdateUniform3fv(char *varName, float data1, float data2, float dat
 		return;
 	GLfloat dataToUpdate[3] = {data1, data2, data3};
 	glUniform3fv(loc, 1, dataToUpdate);
+}
+
+void Shader::UpdateUniform1i(char *varName, int data)
+{
+	ShaderData &sd = fShaderData[fShaderIndex];
+
+	GLint loc;
+	loc = glGetUniformLocation(sd.fProgramID, varName);
+	if (loc == -1)
+		return;
+	GLint dataToUpdate = data;
+	glUniform1i(loc, dataToUpdate);
 }
 
 void Shader::UpdateUniformMat4(char *varName, float * data)
