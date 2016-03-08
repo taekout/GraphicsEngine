@@ -43,10 +43,12 @@ Shader::Shader(void)
 	setShaders(Shader::EShaderKind::eShaderSkybox, "./GLSL/skybox.vert", "./GLSL/skybox.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
 	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
-	glBindAttribLocation(GetProgram(), kInUV, "inUV");
+	glBindAttribLocation(GetProgram(), kInUV, "inUVs");
 
 	LinkShaders();
 	UseProgram(eShaderNothing);
+
+	printOpenGLError();
 }
 
 

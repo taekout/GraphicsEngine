@@ -246,8 +246,6 @@ void RenderBackground()
 	const unsigned int kInPosID = 0;
 	const unsigned int kInUV = 2;
 
-	glClear(GL_COLOR_BUFFER_BIT);  // the color buffer will contain the output from the fragment shader
-
 	float vertices[] = { //interleaved vertex(3) , uv(2)
 		-1.0f,  1.0f, -1.0f, 0, 1,
 		-1.0f, -1.0f, -1.0f, 0, 0,
@@ -325,7 +323,7 @@ void RenderBackground()
 	printOpenGLError();
 
 	// set view / proj matrix.
-	glm::mat4 projMat = glm::perspective(40.0f, 1.0f, 0.0f, 10.0f);
+	glm::mat4 projMat = glm::perspective(40.0f, 1.0f, 0.01f, 10.0f);
 	glm::mat4 viewMat = glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(-1, 1, 1), glm::vec3(0, 1, 0));
 	gDC.fShader->UpdateUniformMat4("Proj", &projMat[0][0]);
 	gDC.fShader->UpdateUniformMat4("View", &viewMat[0][0]);
@@ -366,12 +364,14 @@ void renderScene(void) {
 	// Init GL states.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glDepthMask(GL_TRUE);
+	glDepthMask(GL_FALSE);
 	glDisable(GL_BLEND);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	RenderBackground();
+
+	glDepthMask(GL_TRUE);
 
 	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
 	UpdateRenderMat(gDC);
