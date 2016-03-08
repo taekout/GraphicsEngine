@@ -324,9 +324,13 @@ void RenderBackground()
 
 	// set view / proj matrix.
 	glm::mat4 projMat = glm::perspective(40.0f, 1.0f, 0.01f, 10.0f);
-	glm::mat4 viewMat = glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(-1, 1, 1), glm::vec3(0, 1, 0));
+	glm::mat4 viewMat = gDC.fCamera->GetView(); //glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(-1, 1, 1), glm::vec3(0, 1, 0));
+	glm::vec4 forwardVec = -glm::vec4(viewMat[0][2], viewMat[1][2], viewMat[2][2], viewMat[3][2]);
+	viewMat = glm::lookAt(glm::vec3(0, 0, 0), glm::vec3(forwardVec), glm::vec3(0, 1, 0));
+
 	gDC.fShader->UpdateUniformMat4("Proj", &projMat[0][0]);
 	gDC.fShader->UpdateUniformMat4("View", &viewMat[0][0]);
+	
 
 	printOpenGLError();
 
