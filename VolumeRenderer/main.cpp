@@ -247,6 +247,8 @@ void RenderBackground()
 	const unsigned int kInUV = 2;
 
 	float vertices[] = { //interleaved vertex(3) , uv(2)
+		// direction is based on the up vector (0,1,0). front is -z direction. At the beginning, camera is facing left.(-x).
+		// front
 		-1.0f,  1.0f, -1.0f, 0, 1,
 		-1.0f, -1.0f, -1.0f, 0, 0,
 		1.0f, -1.0f, -1.0f,  1, 0,
@@ -254,34 +256,39 @@ void RenderBackground()
 		1.0f,  1.0f, -1.0f,  1, 1,
 		-1.0f,  1.0f, -1.0f, 0, 1,
 
-		-1.0f, -1.0f,  1.0f, 0, 1,
-		-1.0f, -1.0f, -1.0f, 0, 0,
-		-1.0f,  1.0f, -1.0f, 1, 0,
-		-1.0f,  1.0f, -1.0f, 1, 0,
+		// left
+		-1.0f, -1.0f,  1.0f, 0, 0,
+		-1.0f, -1.0f, -1.0f, 1, 0,
+		-1.0f,  1.0f, -1.0f, 1, 1,
+		-1.0f,  1.0f, -1.0f, 1, 1,
+		-1.0f,  1.0f,  1.0f, 0, 1,
+		-1.0f, -1.0f,  1.0f, 0, 0,
+
+		// right
+		1.0f, -1.0f, -1.0f, 0, 0,
+		1.0f, -1.0f,  1.0f, 1, 0,
+		1.0f,  1.0f,  1.0f, 1, 1,
+		1.0f,  1.0f,  1.0f, 1, 1,
+		1.0f,  1.0f, -1.0f, 0, 1,
+		1.0f, -1.0f, -1.0f, 0, 0,
+
+		// back
+		-1.0f, -1.0f,  1.0f, 1, 0,
 		-1.0f,  1.0f,  1.0f, 1, 1,
-		-1.0f, -1.0f,  1.0f, 0, 1,
+		1.0f,  1.0f,  1.0f,  0, 1,
+		1.0f,  1.0f,  1.0f,  0, 1,
+		1.0f, -1.0f,  1.0f,  0, 0,
+		-1.0f, -1.0f,  1.0f, 1, 0,
 
-		1.0f, -1.0f, -1.0f, 0, 0,
-		1.0f, -1.0f,  1.0f, 0, 1,
-		1.0f,  1.0f,  1.0f, 1, 1,
-		1.0f,  1.0f,  1.0f, 1, 1,
-		1.0f,  1.0f, -1.0f, 1, 0,
-		1.0f, -1.0f, -1.0f, 0, 0,
+		// up
+		-1.0f,  1.0f, -1.0f, 1, 0,
+		1.0f,  1.0f, -1.0f,  1, 1,
+		1.0f,  1.0f,  1.0f,  0, 1,
+		1.0f,  1.0f,  1.0f,  0, 1,
+		-1.0f,  1.0f,  1.0f, 0, 0,
+		-1.0f,  1.0f, -1.0f, 1, 0,
 
-		-1.0f, -1.0f,  1.0f, 0, 0,
-		-1.0f,  1.0f,  1.0f, 0, 1,
-		1.0f,  1.0f,  1.0f,  1, 1,
-		1.0f,  1.0f,  1.0f,  1, 1,
-		1.0f, -1.0f,  1.0f,  1, 0,
-		-1.0f, -1.0f,  1.0f, 0, 0,
-
-		-1.0f,  1.0f, -1.0f, 0, 0,
-		1.0f,  1.0f, -1.0f,  1, 0,
-		1.0f,  1.0f,  1.0f,  1, 1,
-		1.0f,  1.0f,  1.0f,  1, 1,
-		-1.0f,  1.0f,  1.0f, 0, 1,
-		-1.0f,  1.0f, -1.0f, 0, 0,
-
+		// down
 		-1.0f, -1.0f, -1.0f, 0, 0,
 		-1.0f, -1.0f,  1.0f, 0, 1,
 		1.0f, -1.0f, -1.0f,  1, 0,
@@ -466,12 +473,12 @@ void LoadPlane()
 void LoadSkybox()
 {
 	std::array<unsigned int, 6> skyboxIDs{0};
-	skyboxIDs[0] = loadBMP_custom("./Skybox/ashcanyon_bk.bmp");
-	skyboxIDs[1] = loadBMP_custom("./Skybox/ashcanyon_dn.bmp");
-	skyboxIDs[2] = loadBMP_custom("./Skybox/ashcanyon_ft.bmp");
-	skyboxIDs[3] = loadBMP_custom("./Skybox/ashcanyon_lf.bmp");
-	skyboxIDs[4] = loadBMP_custom("./Skybox/ashcanyon_rt.bmp");
-	skyboxIDs[5] = loadBMP_custom("./Skybox/ashcanyon_up.bmp");
+	skyboxIDs[0] = loadBMP_custom("./Skybox/ashcanyon_ft.bmp");
+	skyboxIDs[1] = loadBMP_custom("./Skybox/ashcanyon_rt.bmp");
+	skyboxIDs[2] = loadBMP_custom("./Skybox/ashcanyon_lf.bmp");
+	skyboxIDs[3] = loadBMP_custom("./Skybox/ashcanyon_bk.bmp");
+	skyboxIDs[4] = loadBMP_custom("./Skybox/ashcanyon_up.bmp");
+	skyboxIDs[5] = loadBMP_custom("./Skybox/ashcanyon_dn.bmp");
 
 	std::shared_ptr<IBackground> bg = std::make_shared<CubeBackground>();
 	bg->SetCubeBackgroundTex(skyboxIDs);
